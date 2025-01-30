@@ -247,8 +247,8 @@ QImage addPadding(const QImage &original) {
 	}
 
 	QImage paddedImage(
-		original.width() + 2 * st::messageShotPadding,
-		original.height() + 2 * st::messageShotPadding,
+		original.width() + 2 * st::messageShotPadding * style::DevicePixelRatio(),
+		original.height() + 2 * st::messageShotPadding * style::DevicePixelRatio(),
 		QImage::Format_ARGB32_Premultiplied
 	);
 	paddedImage.setDevicePixelRatio(style::DevicePixelRatio());
@@ -353,6 +353,7 @@ QImage Make(not_null<QWidget*> box, const ShotConfig &config) {
 	}
 
 	height *= style::DevicePixelRatio();
+	width *= style::DevicePixelRatio();
 
 	// create the image
 	QImage image(width, height, QImage::Format_ARGB32_Premultiplied);
