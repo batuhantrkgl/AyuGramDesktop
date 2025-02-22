@@ -65,9 +65,10 @@ jobs:
 
       - name: First set up.
         run: |
+          REPO_LC="${GITHUB_REPOSITORY,,}"  # Convert to lowercase
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-          docker pull ghcr.io/$GITHUB_REPOSITORY/centos_env
-          docker tag ghcr.io/$GITHUB_REPOSITORY/centos_env tdesktop:centos_env
+          docker pull ghcr.io/$REPO_LC/centos_env
+          docker tag ghcr.io/$REPO_LC/centos_env tdesktop:centos_env
 
       - name: Telegram Desktop build.
         run: |
