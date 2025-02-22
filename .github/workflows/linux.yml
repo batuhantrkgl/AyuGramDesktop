@@ -69,22 +69,59 @@ jobs:
           # Create Dockerfile for build environment
           cat > Dockerfile << 'EOL'
           FROM centos:7
-
+          
           # Update repositories to use vault
           RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
               sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
               yum clean all && \
               yum makecache
           
-          # Install development tools and repositories
-          RUN yum -y install centos-release-scl epel-release && \
-              yum -y install devtoolset-10 cmake3 autoconf automake libtool git patch pkg-config python3 gperf \
-              gtk3-devel qt5-qtbase-devel libstdc++-devel libXi-devel libXext-devel \
-              libXfixes-devel libXtst-devel libXrandr-devel libXrender-devel libXdamage-devel \
-              libXcomposite-devel libXScrnSaver-devel libX11-devel mesa-libGL-devel \
-              openssl-devel zlib-devel opus-devel ffmpeg-devel alsa-lib-devel \
-              pulseaudio-libs-devel jpeg-devel libva-devel libdrm-devel \
-              xorg-x11-util-macros xcb-util-keysyms-devel libxkbcommon-devel && \
+          # Install EPEL first
+          RUN yum -y install epel-release
+          
+          # Install and configure SCL
+          RUN yum -y install centos-release-scl-rh centos-release-scl && \
+              sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-SCLo-*.repo && \
+              sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-SCLo-*.repo
+          
+          # Install development tools and dependencies
+          RUN yum -y install \
+              devtoolset-10 \
+              cmake3 \
+              autoconf \
+              automake \
+              libtool \
+              git \
+              patch \
+              pkg-config \
+              python3 \
+              gperf \
+              gtk3-devel \
+              qt5-qtbase-devel \
+              libstdc++-devel \
+              libXi-devel \
+              libXext-devel \
+              libXfixes-devel \
+              libXtst-devel \
+              libXrandr-devel \
+              libXrender-devel \
+              libXdamage-devel \
+              libXcomposite-devel \
+              libXScrnSaver-devel \
+              libX11-devel \
+              mesa-libGL-devel \
+              openssl-devel \
+              zlib-devel \
+              opus-devel \
+              ffmpeg-devel \
+              alsa-lib-devel \
+              pulseaudio-libs-devel \
+              jpeg-devel \
+              libva-devel \
+              libdrm-devel \
+              xorg-x11-util-macros \
+              xcb-util-keysyms-devel \
+              libxkbcommon-devel && \
               yum clean all
           
           # Enable devtoolset-10 by default
