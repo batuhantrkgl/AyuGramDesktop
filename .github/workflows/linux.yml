@@ -81,15 +81,15 @@ jobs:
 
           # Configure and install SCL
           RUN yum -y install centos-release-scl-rh centos-release-scl && \
-              for file in /etc/yum.repos.d/CentOS-SCLo-*.repo; do \
-                sed -i 's/^mirrorlist=/#mirrorlist=/g' $file; \
-                sed -i 's|^#baseurl=http://mirror.centos.org/centos/|baseurl=http://vault.centos.org/7.9.2009/|g' $file; \
-                sed -i 's|^baseurl=http://mirror.centos.org/centos/|baseurl=http://vault.centos.org/7.9.2009/|g' $file; \
-              done && \
-              yum clean all && \
-              yum makecache && \
-              yum-config-manager --enable centos-sclo-rh && \
-              yum-config-manager --enable centos-sclo-sclo
+              for file in /etc/yum.repos.d/CentOS-SCLo-sclo*.repo /etc/yum.repos.d/CentOS-SCLo-rh*.repo; do \
+              sed -i 's/^mirrorlist=/#mirrorlist=/g' $file; \
+              sed -i 's|^#baseurl=http://mirror.centos.org/centos/\(.*\)/sclo/|baseurl=http://vault.centos.org/centos/7.9.2009/sclo/|g' $file; \
+              sed -i 's|^baseurl=http://mirror.centos.org/centos/\(.*\)/sclo/|baseurl=http://vault.centos.org/centos/7.9.2009/sclo/|g' $file; \
+                done && \
+                yum clean all && \
+                yum makecache && \
+                yum-config-manager --enable centos-sclo-rh && \
+                yum-config-manager --enable centos-sclo-sclo
 
           # Install development tools and dependencies
           RUN yum -y install \
