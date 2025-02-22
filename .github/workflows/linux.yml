@@ -69,6 +69,12 @@ jobs:
           # Create Dockerfile for build environment
           cat > Dockerfile << 'EOL'
           FROM centos:7
+
+          # Update repositories to use vault
+          RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+              sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+              yum clean all && \
+              yum makecache
           
           # Install development tools and repositories
           RUN yum -y install centos-release-scl epel-release && \
