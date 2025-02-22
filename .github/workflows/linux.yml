@@ -75,18 +75,22 @@ jobs:
               sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
               yum clean all && \
               yum makecache
-          
+
           # Install EPEL first
           RUN yum -y install epel-release
-          
-          # Install and configure SCL with proper vault URLs
+
+          # Configure and install SCL
           RUN yum -y install centos-release-scl-rh centos-release-scl && \
-              sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-SCLo-*.repo && \
-              sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-SCLo-*.repo && \
-              sed -i 's|baseurl=http://vault.centos.org/centos/|baseurl=http://vault.centos.org/7.9.2009/|g' /etc/yum.repos.d/CentOS-SCLo-*.repo && \
+              for file in /etc/yum.repos.d/CentOS-SCLo-*.repo; do \
+                sed -i 's/^mirrorlist=/#mirrorlist=/g' $file; \
+                sed -i 's|^#baseurl=http://mirror.centos.org/centos/|baseurl=http://vault.centos.org/7.9.2009/|g' $file; \
+                sed -i 's|^baseurl=http://mirror.centos.org/centos/|baseurl=http://vault.centos.org/7.9.2009/|g' $file; \
+              done && \
               yum clean all && \
-              yum makecache
-          
+              yum makecache && \
+              yum-config-manager --enable centos-sclo-rh && \
+              yum-config-manager --enable centos-sclo-sclo
+
           # Install development tools and dependencies
           RUN yum -y install \
               devtoolset-10 \
