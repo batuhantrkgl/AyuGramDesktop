@@ -40,7 +40,7 @@ on:
 
 jobs:
   linux:
-    name: Rocky Linux 8
+    name: CentOS 7 Build
     runs-on: ubuntu-latest
 
     strategy:
@@ -62,10 +62,34 @@ jobs:
           submodules: recursive
           path: ${{ env.REPO_NAME }}
 
-      - name: Set up Docker
+      - name: Set up Docker environment
         run: |
-          docker pull rockylinux:8
-          docker build -t tdesktop:centos_env -f ${{ env.REPO_NAME }}/Telegram/build/docker/centos_env/Dockerfile ${{ env.REPO_NAME }}
+          docker pull centos:7
+          
+          # Create Dockerfile for build environment
+          cat > Dockerfile << 'EOL'
+          FROM centos:7
+          
+          # Install development tools and repositories
+          RUN yum -y install centos-release-scl epel-release && \
+              yum -y install devtoolset-10 cmake3 autoconf automake libtool git patch pkg-config python3 gperf \
+              gtk3-devel qt5-qtbase-devel libstdc++-devel libXi-devel libXext-devel \
+              libXfixes-devel libXtst-devel libXrandr-devel libXrender-devel libXdamage-devel \
+              libXcomposite-devel libXScrnSaver-devel libX11-devel mesa-libGL-devel \
+              openssl-devel zlib-devel opus-devel ffmpeg-devel alsa-lib-devel \
+              pulseaudio-libs-devel jpeg-devel libva-devel libdrm-devel \
+              xorg-x11-util-macros xcb-util-keysyms-devel libxkbcommon-devel && \
+              yum clean all
+          
+          # Enable devtoolset-10 by default
+          SHELL [ "/usr/bin/scl", "enable", "devtoolset-10" ]
+          
+          # Set work directory
+          WORKDIR /usr/src/tdesktop
+          EOL
+          
+          # Build the Docker image
+          docker build -t tdesktop:centos_env .
 
       - name: Telegram Desktop build
         run: |
@@ -85,7 +109,7 @@ jobs:
           -v $PWD:/usr/src/tdesktop \
           -e CONFIG=Debug \
           tdesktop:centos_env \
-          /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
+          scl enable devtoolset-10 -- /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
           -D CMAKE_C_FLAGS_DEBUG="" \
           -D CMAKE_CXX_FLAGS_DEBUG="" \
           -D CMAKE_C_FLAGS="-Werror" \
