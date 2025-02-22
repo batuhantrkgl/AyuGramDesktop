@@ -885,14 +885,14 @@ void Filler::addViewDiscussion() {
 }
 
 void Filler::addExportChat() {
-	if (_thread->asTopic() || !_peer->canExportChatHistory()) {
-		return;
-	}
-	const auto peer = _peer;
-	_addAction(
-		tr::lng_profile_export_chat(tr::now),
-		[=] { PeerMenuExportChat(peer); },
-		&st::menuIconExport);
+    if (_thread->asTopic()) {
+        return;
+    }
+    const auto peer = _peer;
+    _addAction(
+        tr::lng_profile_export_chat(tr::now),
+        [=] { PeerMenuExportChat(peer); },
+        &st::menuIconExport);
 }
 
 void Filler::addTranslate() {
